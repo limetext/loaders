@@ -9,7 +9,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/limetext/lime-backend/lib/loaders/json"
+	"github.com/limetext/loaders/json"
 	. "github.com/limetext/text"
 )
 

@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/limetext/lime-backend/lib/loaders/plist"
+	"github.com/limetext/loaders/plist"
 	"github.com/quarnster/parser"
 )
 
