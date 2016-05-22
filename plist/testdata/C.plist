@@ -27,10 +27,10 @@
 			<key>include</key>
 			<string>#preprocessor-rule-other</string>
 		</dict>
-		<dict>
+		<!-- <dict>
 			<key>include</key>
 			<string>#comments</string>
-		</dict>
+		</dict> -->
 		<dict>
 			<key>match</key>
 			<string>\b(break|case|continue|default|do|else|for|goto|if|_Pragma|return|switch|while)\b</string>

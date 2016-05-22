@@ -838,25 +838,16 @@ func (p *PLIST) Array() bool {
 }
 
 func (p *PLIST) Spacing() bool {
-	// Spacing        <-    [ \t\n\r]+
+	// Spacing        <-    (Comment / [ \t\n\r])+
 	accept := false
 	accept = true
 	start := p.ParserData.Pos()
 	{
 		save := p.ParserData.Pos()
 		{
-			accept = false
-			c := p.ParserData.Read()
-			if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
-				accept = true
-			} else {
-				p.ParserData.UnRead()
-			}
-		}
-		if !accept {
-			p.ParserData.Seek(save)
-		} else {
-			for accept {
+			save := p.ParserData.Pos()
+			accept = p.Comment()
+			if !accept {
 				{
 					accept = false
 					c := p.ParserData.Read()
@@ -864,6 +855,37 @@ func (p *PLIST) Spacing() bool {
 						accept = true
 					} else {
 						p.ParserData.UnRead()
+					}
+				}
+				if !accept {
+				}
+			}
+			if !accept {
+				p.ParserData.Seek(save)
+			}
+		}
+		if !accept {
+			p.ParserData.Seek(save)
+		} else {
+			for accept {
+				{
+					save := p.ParserData.Pos()
+					accept = p.Comment()
+					if !accept {
+						{
+							accept = false
+							c := p.ParserData.Read()
+							if c == ' ' || c == '\t' || c == '\n' || c == '\r' {
+								accept = true
+							} else {
+								p.ParserData.UnRead()
+							}
+						}
+						if !accept {
+						}
+					}
+					if !accept {
+						p.ParserData.Seek(save)
 					}
 				}
 			}
@@ -906,6 +928,88 @@ func (p *PLIST) EndOfFile() bool {
 	}
 	if p.IgnoreRange.A >= end || p.IgnoreRange.B <= start {
 		p.IgnoreRange = text.Region{}
+	}
+	return accept
+}
+
+func (p *PLIST) Comment() bool {
+	// Comment        <-    "<!--" (!"-->" .)* "-->"
+	accept := false
+	accept = true
+	start := p.ParserData.Pos()
+	{
+		save := p.ParserData.Pos()
+		{
+			accept = true
+			s := p.ParserData.Pos()
+			if p.ParserData.Read() != '<' || p.ParserData.Read() != '!' || p.ParserData.Read() != '-' || p.ParserData.Read() != '-' {
+				p.ParserData.Seek(s)
+				accept = false
+			}
+		}
+		if accept {
+			{
+				accept = true
+				for accept {
+					{
+						save := p.ParserData.Pos()
+						s := p.ParserData.Pos()
+						{
+							accept = true
+							s := p.ParserData.Pos()
+							if p.ParserData.Read() != '-' || p.ParserData.Read() != '-' || p.ParserData.Read() != '>' {
+								p.ParserData.Seek(s)
+								accept = false
+							}
+						}
+						p.ParserData.Seek(s)
+						p.Root.Discard(s)
+						accept = !accept
+						if accept {
+							if p.ParserData.Pos() >= p.ParserData.Len() {
+								accept = false
+							} else {
+								p.ParserData.Read()
+								accept = true
+							}
+							if accept {
+							}
+						}
+						if !accept {
+							if p.LastError < p.ParserData.Pos() {
+								p.LastError = p.ParserData.Pos()
+							}
+							p.ParserData.Seek(save)
+						}
+					}
+				}
+				accept = true
+			}
+			if accept {
+				{
+					accept = true
+					s := p.ParserData.Pos()
+					if p.ParserData.Read() != '-' || p.ParserData.Read() != '-' || p.ParserData.Read() != '>' {
+						p.ParserData.Seek(s)
+						accept = false
+					}
+				}
+				if accept {
+				}
+			}
+		}
+		if !accept {
+			if p.LastError < p.ParserData.Pos() {
+				p.LastError = p.ParserData.Pos()
+			}
+			p.ParserData.Seek(save)
+		}
+	}
+	if accept && start != p.ParserData.Pos() {
+		if start < p.IgnoreRange.A || p.IgnoreRange.A == 0 {
+			p.IgnoreRange.A = start
+		}
+		p.IgnoreRange.B = p.ParserData.Pos()
 	}
 	return accept
 }
