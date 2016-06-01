@@ -6,8 +6,11 @@ KeyValuePair   <-    Spacing* KeyTag Spacing* Value Spacing*
 KeyTag         <-    "<key>" Key "</key>"
 Key            <-    (!'<' .)*
 StringTag      <-    "<string>" String "</string>"
+IntegerTag     <-    "<integer>" Integer "</integer>"
+BooleanTag     <-    "<true/>" / "<false/>"
 String         <-    (!'<' .)*
-Value          <-    Array / StringTag / Dictionary
+Integer        <-    (!'<' [0-9])*
+Value          <-    Array / StringTag / Dictionary / IntegerTag / BooleanTag
 Values         <-    (Spacing* Value Spacing*)*
 Array          <-    "<array>" Values "</array>" / "<array/>"
 
