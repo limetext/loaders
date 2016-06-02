@@ -44,7 +44,7 @@ func main() {
 			path.Join(loaderspath, "plist", "plist.peg"),
 			path.Join(loaderspath, "plist"),
 			"plist_generated",
-			"Comment,Spacing,KeyValuePair,KeyTag,StringTag,Value,Values,PlistFile,Plist",
+			"Comment,Spacing,KeyValuePair,KeyTag,StringTag,IntegerTag,BooleanTag,Value,Values,PlistFile,Plist",
 			"testdata/C.plist",
 		},
 	}

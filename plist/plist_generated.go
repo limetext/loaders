@@ -668,18 +668,11 @@ func (p *PLIST) IntegerTag() bool {
 			p.ParserData.Seek(save)
 		}
 	}
-	end := p.ParserData.Pos()
-	if accept {
-		node := p.Root.Cleanup(start, end)
-		node.Name = "IntegerTag"
-		node.P = p
-		node.Range = node.Range.Clip(p.IgnoreRange)
-		p.Root.Append(node)
-	} else {
-		p.Root.Discard(start)
-	}
-	if p.IgnoreRange.A >= end || p.IgnoreRange.B <= start {
-		p.IgnoreRange = text.Region{}
+	if accept && start != p.ParserData.Pos() {
+		if start < p.IgnoreRange.A || p.IgnoreRange.A == 0 {
+			p.IgnoreRange.A = start
+		}
+		p.IgnoreRange.B = p.ParserData.Pos()
 	}
 	return accept
 }
@@ -715,18 +708,11 @@ func (p *PLIST) BooleanTag() bool {
 			p.ParserData.Seek(save)
 		}
 	}
-	end := p.ParserData.Pos()
-	if accept {
-		node := p.Root.Cleanup(start, end)
-		node.Name = "BooleanTag"
-		node.P = p
-		node.Range = node.Range.Clip(p.IgnoreRange)
-		p.Root.Append(node)
-	} else {
-		p.Root.Discard(start)
-	}
-	if p.IgnoreRange.A >= end || p.IgnoreRange.B <= start {
-		p.IgnoreRange = text.Region{}
+	if accept && start != p.ParserData.Pos() {
+		if start < p.IgnoreRange.A || p.IgnoreRange.A == 0 {
+			p.IgnoreRange.A = start
+		}
+		p.IgnoreRange.B = p.ParserData.Pos()
 	}
 	return accept
 }

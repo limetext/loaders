@@ -52,6 +52,8 @@ func plistconv(buf *bytes.Buffer, node *parser.Node) error {
 		}
 
 		buf.WriteString("]\n\t")
+	case "Integer":
+		buf.WriteString(node.Data())
 	case "EndOfFile":
 	default:
 		return errors.New(fmt.Sprintf("Unhandled node: %s", node.Name))
