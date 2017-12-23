@@ -916,7 +916,7 @@ func (p *PLIST) Values() bool {
 }
 
 func (p *PLIST) Array() bool {
-	// Array          <-    "<array>" Values "</array>" / "<array/>"
+	// Array          <-    "<array>" Values? "</array>" / "<array/>"
 	accept := false
 	accept = true
 	start := p.ParserData.Pos()
@@ -934,6 +934,7 @@ func (p *PLIST) Array() bool {
 			}
 			if accept {
 				accept = p.Values()
+				accept = true
 				if accept {
 					{
 						accept = true

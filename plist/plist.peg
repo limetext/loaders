@@ -12,7 +12,7 @@ String         <-    (!'<' .)*
 Integer        <-    (!'<' [0-9])*
 Value          <-    Array / StringTag / Dictionary / IntegerTag / BooleanTag
 Values         <-    (Spacing* Value Spacing*)*
-Array          <-    "<array>" Values "</array>" / "<array/>"
+Array          <-    "<array>" Values? "</array>" / "<array/>"
 
 Spacing        <-    (Comment / [ \t\n\r])+
 EndOfFile      <-    !.
