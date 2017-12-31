@@ -62,10 +62,9 @@ func plistconv(buf *bytes.Buffer, node *parser.Node) error {
 }
 
 func LoadPlist(data []byte, intf interface{}) error {
-	var (
-		p plist.PLIST
-	)
-	if !p.Parse(strings.Replace(string(data), "\r", "", -1)) {
+	var p plist.PLIST
+	r := strings.NewReplacer("\r", "", "\v", "")
+	if !p.Parse(r.Replace(string(data))) {
 		return p.Error()
 	}
 	var (
