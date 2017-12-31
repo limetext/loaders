@@ -52,7 +52,7 @@ func plistconv(buf *bytes.Buffer, node *parser.Node) error {
 		}
 
 		buf.WriteString("]\n\t")
-	case "Integer":
+	case "Integer", "Bool":
 		buf.WriteString(node.Data())
 	case "EndOfFile":
 	default:

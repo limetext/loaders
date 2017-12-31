@@ -6,10 +6,17 @@ import (
 )
 
 func TestLoadPlist(t *testing.T) {
+	tests := []string{
+		"plist/testdata/file.plist",
+		// "plist/testdata/C.plist",
+	}
+
 	var v struct{}
-	if d, err := ioutil.ReadFile("testdata/file.plist"); err != nil {
-		t.Errorf("Unable to read plist file: %s", err)
-	} else if err := LoadPlist(d, &v); err != nil {
-		t.Errorf("Unable to load plist file: %s", err)
+	for i, test := range tests {
+		if d, err := ioutil.ReadFile(test); err != nil {
+			t.Errorf("Test %d: Unable to read %s: %s", i, test, err)
+		} else if err := LoadPlist(d, &v); err != nil {
+			t.Errorf("Test %d: Unable to load plist %s: %s", i, test, err)
+		}
 	}
 }

@@ -7,12 +7,13 @@ KeyTag         <-    "<key>" Key "</key>"
 Key            <-    (!'<' .)*
 StringTag      <-    "<string>" String "</string>"
 IntegerTag     <-    "<integer>" Integer "</integer>"
-BooleanTag     <-    "<true/>" / "<false/>"
+BooleanTag     <-    "<" Bool "/>"
 String         <-    (!'<' .)*
 Integer        <-    (!'<' [0-9])*
+Bool           <-    "true" / "false"
 Value          <-    Array / StringTag / Dictionary / IntegerTag / BooleanTag
 Values         <-    (Spacing* Value Spacing*)*
-Array          <-    "<array>" Values? "</array>" / "<array/>"
+Array          <-    "<array>" Values "</array>" / "<array/>"
 
 Spacing        <-    (Comment / [ \t\n\r])+
 EndOfFile      <-    !.
