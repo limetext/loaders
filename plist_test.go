@@ -8,9 +8,10 @@ import (
 func TestLoadPlist(t *testing.T) {
 	tests := []string{
 		"plist/testdata/file.plist",
-		// "plist/testdata/C.plist",
+		"plist/testdata/C.plist",
 	}
 
+	// TODO: test if actually values are correct
 	var v struct{}
 	for i, test := range tests {
 		if d, err := ioutil.ReadFile(test); err != nil {

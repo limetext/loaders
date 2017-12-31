@@ -9,13 +9,29 @@
 	<key>test-array</key>
 	<array>
 		<dict>
+			<key>num</key>
+			<integer>1</integer>
 			<key>string</key>
 			<string>lime</string>
 		</dict>
+		<array>
+
+		</array>
+	</array>
+	<key>test-empty-array-linebeark</key>
+	<array>
+	</array>
+	<key>test-empty-array-comment</key>
+	<array>
+		<!-- test -->
 	</array>
 	<key>test-string</key>
 	<string>Hi there</string>
 	<key>test-bool</key>
 	<true/>
+	<key>test-bool-false</key>
+	<false/>
+	<key>test-empty-string</key>
+	<string />
 </dict>
 </plist>

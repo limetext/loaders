@@ -27,6 +27,8 @@ func plistconv(buf *bytes.Buffer, node *parser.Node) error {
 		n = strings.Replace(n, "&gt;", ">", -1)
 		n = strings.Replace(n, "&lt;", "<", -1)
 		buf.WriteString("\"" + n + "\"")
+	case "EmptyString":
+		buf.WriteString("\"\"")
 	case "Dictionary":
 		buf.WriteString("{\n\t")
 		for i, child := range node.Children {

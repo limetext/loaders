@@ -586,39 +586,50 @@ func (p *PLIST) Key() bool {
 }
 
 func (p *PLIST) StringTag() bool {
-	// StringTag      <-    "<string>" String "</string>"
+	// StringTag      <-    ("<string>" String "</string>") / EmptyString
 	accept := false
 	accept = true
 	start := p.ParserData.Pos()
 	{
 		save := p.ParserData.Pos()
 		{
-			accept = true
-			s := p.ParserData.Pos()
-			if p.ParserData.Read() != '<' || p.ParserData.Read() != 's' || p.ParserData.Read() != 't' || p.ParserData.Read() != 'r' || p.ParserData.Read() != 'i' || p.ParserData.Read() != 'n' || p.ParserData.Read() != 'g' || p.ParserData.Read() != '>' {
-				p.ParserData.Seek(s)
-				accept = false
+			save := p.ParserData.Pos()
+			{
+				accept = true
+				s := p.ParserData.Pos()
+				if p.ParserData.Read() != '<' || p.ParserData.Read() != 's' || p.ParserData.Read() != 't' || p.ParserData.Read() != 'r' || p.ParserData.Read() != 'i' || p.ParserData.Read() != 'n' || p.ParserData.Read() != 'g' || p.ParserData.Read() != '>' {
+					p.ParserData.Seek(s)
+					accept = false
+				}
 			}
-		}
-		if accept {
-			accept = p.String()
 			if accept {
-				{
-					accept = true
-					s := p.ParserData.Pos()
-					if p.ParserData.Read() != '<' || p.ParserData.Read() != '/' || p.ParserData.Read() != 's' || p.ParserData.Read() != 't' || p.ParserData.Read() != 'r' || p.ParserData.Read() != 'i' || p.ParserData.Read() != 'n' || p.ParserData.Read() != 'g' || p.ParserData.Read() != '>' {
-						p.ParserData.Seek(s)
-						accept = false
+				accept = p.String()
+				if accept {
+					{
+						accept = true
+						s := p.ParserData.Pos()
+						if p.ParserData.Read() != '<' || p.ParserData.Read() != '/' || p.ParserData.Read() != 's' || p.ParserData.Read() != 't' || p.ParserData.Read() != 'r' || p.ParserData.Read() != 'i' || p.ParserData.Read() != 'n' || p.ParserData.Read() != 'g' || p.ParserData.Read() != '>' {
+							p.ParserData.Seek(s)
+							accept = false
+						}
+					}
+					if accept {
 					}
 				}
-				if accept {
+			}
+			if !accept {
+				if p.LastError < p.ParserData.Pos() {
+					p.LastError = p.ParserData.Pos()
 				}
+				p.ParserData.Seek(save)
 			}
 		}
 		if !accept {
-			if p.LastError < p.ParserData.Pos() {
-				p.LastError = p.ParserData.Pos()
+			accept = p.EmptyString()
+			if !accept {
 			}
+		}
+		if !accept {
 			p.ParserData.Seek(save)
 		}
 	}
@@ -678,17 +689,19 @@ func (p *PLIST) IntegerTag() bool {
 }
 
 func (p *PLIST) BooleanTag() bool {
-	// BooleanTag     <-    '<' Bool "/>"
+	// BooleanTag     <-    "<" Bool "/>"
 	accept := false
 	accept = true
 	start := p.ParserData.Pos()
 	{
 		save := p.ParserData.Pos()
-		if p.ParserData.Read() != '<' {
-			p.ParserData.UnRead()
-			accept = false
-		} else {
+		{
 			accept = true
+			s := p.ParserData.Pos()
+			if p.ParserData.Read() != '<' {
+				p.ParserData.Seek(s)
+				accept = false
+			}
 		}
 		if accept {
 			accept = p.Bool()
@@ -765,6 +778,35 @@ func (p *PLIST) String() bool {
 	if accept {
 		node := p.Root.Cleanup(start, end)
 		node.Name = "String"
+		node.P = p
+		node.Range = node.Range.Clip(p.IgnoreRange)
+		p.Root.Append(node)
+	} else {
+		p.Root.Discard(start)
+	}
+	if p.IgnoreRange.A >= end || p.IgnoreRange.B <= start {
+		p.IgnoreRange = text.Region{}
+	}
+	return accept
+}
+
+func (p *PLIST) EmptyString() bool {
+	// EmptyString    <-    "<string />"
+	accept := false
+	accept = true
+	start := p.ParserData.Pos()
+	{
+		accept = true
+		s := p.ParserData.Pos()
+		if p.ParserData.Read() != '<' || p.ParserData.Read() != 's' || p.ParserData.Read() != 't' || p.ParserData.Read() != 'r' || p.ParserData.Read() != 'i' || p.ParserData.Read() != 'n' || p.ParserData.Read() != 'g' || p.ParserData.Read() != ' ' || p.ParserData.Read() != '/' || p.ParserData.Read() != '>' {
+			p.ParserData.Seek(s)
+			accept = false
+		}
+	}
+	end := p.ParserData.Pos()
+	if accept {
+		node := p.Root.Cleanup(start, end)
+		node.Name = "EmptyString"
 		node.P = p
 		node.Range = node.Range.Clip(p.IgnoreRange)
 		p.Root.Append(node)
@@ -917,7 +959,7 @@ func (p *PLIST) Value() bool {
 }
 
 func (p *PLIST) Values() bool {
-	// Values         <-    (Spacing* Value Spacing*)*
+	// Values         <-    (Spacing* Value / Spacing Spacing*)*
 	accept := false
 	accept = true
 	start := p.ParserData.Pos()
@@ -927,30 +969,52 @@ func (p *PLIST) Values() bool {
 			{
 				save := p.ParserData.Pos()
 				{
-					accept = true
-					for accept {
-						accept = p.Spacing()
-					}
-					accept = true
-				}
-				if accept {
-					accept = p.Value()
-					if accept {
-						{
-							accept = true
-							for accept {
-								accept = p.Spacing()
-							}
-							accept = true
+					save := p.ParserData.Pos()
+					{
+						accept = true
+						for accept {
+							accept = p.Spacing()
 						}
+						accept = true
+					}
+					if accept {
+						accept = p.Value()
 						if accept {
 						}
 					}
+					if !accept {
+						if p.LastError < p.ParserData.Pos() {
+							p.LastError = p.ParserData.Pos()
+						}
+						p.ParserData.Seek(save)
+					}
 				}
 				if !accept {
-					if p.LastError < p.ParserData.Pos() {
-						p.LastError = p.ParserData.Pos()
+					{
+						save := p.ParserData.Pos()
+						accept = p.Spacing()
+						if accept {
+							{
+								accept = true
+								for accept {
+									accept = p.Spacing()
+								}
+								accept = true
+							}
+							if accept {
+							}
+						}
+						if !accept {
+							if p.LastError < p.ParserData.Pos() {
+								p.LastError = p.ParserData.Pos()
+							}
+							p.ParserData.Seek(save)
+						}
 					}
+					if !accept {
+					}
+				}
+				if !accept {
 					p.ParserData.Seek(save)
 				}
 			}
